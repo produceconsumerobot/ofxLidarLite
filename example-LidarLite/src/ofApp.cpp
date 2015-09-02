@@ -3,9 +3,10 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 	myLidarLite = LidarLite();
+	myLidarLite.begin();
 	
 	// Exit if the lidar lite didn't initialize properly
-	if (!myLidarLite.isInitialized()) ofApp::exit();
+	if (!myLidarLite.hasBegun()) ofApp::exit();
 	
 	// Print the hardware version of the Lidar Lite
 	cout << "LIDAR Lite hardware version: " << myLidarLite.getHardwareVersion() << endl;
@@ -24,12 +25,8 @@ void ofApp::draw(){
           << std::setfill( '0' ) <<ofGetFrameRate() << " Hz, ";
 		
 	// Read the distance
-	int distance = myLidarLite.readDistance();
-	cout << "Distance = " << distance << " cm, ";
-
-	// Check the status of the lidar lite
-	unsigned char status = myLidarLite.getStatus();
-	cout << LidarLite::getStatusString(status) << endl;
+	int distance = myLidarLite.distance();
+	cout << "Distance = " << distance << " cm" << endl;
 }
 
 //--------------------------------------------------------------
