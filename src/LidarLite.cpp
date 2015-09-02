@@ -25,6 +25,7 @@ https://github.com/PulsedLight3D/
 #include <wiringPiI2C.h>
 #include <sstream>
 #include <iostream>
+#include <iomanip>
 
 //--------------------------------------------------------------
 LidarLite::LidarLite() {
@@ -245,36 +246,33 @@ int LidarLite::status() {
 
 
 //--------------------------------------------------------------	
-int LidarLite::getHardwareVersion() {
+int LidarLite::hardwareVersion() {
 	return readByte(fd, REG_VERSION, false);
 }
 
 //--------------------------------------------------------------	
-string LidarLite::getStatusString(int status) {
+string LidarLite::statusString(int status) {
 	stringstream out;
 	
 	if (status == -1) {
-		out << "STATUS: -1 error";
+		out << "STATUS: -1 error;";
 	} else {
 		unsigned char stat = (unsigned char) status;
 		
 		// Print the hex status byte
 		out << "STATUS BYTE: 0x";
-		// add a zero if necessary to maintain correct formatting
-		if ((int) stat < 10) out << "0";
-		out << (int) stat;
+		out << setw(2) << setfill('0') << hex << (int) stat;
 
-		if (stat & STATUS_BUSY) out << " busy";              
-		if (stat & STATUS_REFERENCE_OVERFLOW) out << " reference overflow";            
-		if (stat & STATUS_SIGNAL_OVERFLOW) out << " signal overflow";            
-		if (stat & STATUS_PIN) out << " mode select pin";                 
-		if (stat & STATUS_SECOND_PEAK) out << " second peak";         
-		if (stat & STATUS_TIMESTAMP) out << " active between pairs";                
-		if (stat & STATUS_SIGNAL_INVALID) out << " no signal";             
-		if (stat & STATUS_EYE_SAFETY_ON) out << " eye safety";  	
-		
-		return out.str();
+		if (stat & STATUS_BUSY) out << " busy;";              
+		if (stat & STATUS_REFERENCE_OVERFLOW) out << " reference overflow;";            
+		if (stat & STATUS_SIGNAL_OVERFLOW) out << " signal overflow;";            
+		if (stat & STATUS_PIN) out << " mode select pin;";                 
+		if (stat & STATUS_SECOND_PEAK) out << " second peak;";         
+		if (stat & STATUS_TIMESTAMP) out << " active between pairs;";                
+		if (stat & STATUS_SIGNAL_INVALID) out << " no signal;";             
+		if (stat & STATUS_EYE_SAFETY_ON) out << " eye safety;";  	
 	}
+	return out.str();
 }  
 
 //--------------------------------------------------------------	
@@ -291,7 +289,7 @@ int LidarLite::readByte(int fd, int reg, bool monitorBusyFlag) {
 		if (DEBUG_PRINT) cout << "status = " << status << endl;
 		if (status != -1) {
 			// If bit0 of status == 1, the LIDAR Lite is busy
-			busyFlag = (((unsigned char) status ) & 0x01);
+			busyFlag = (((unsigned char) status ) & STATUS_BUSY);
 			if (DEBUG_PRINT) cout << "busyFlag = " << busyFlag << endl;
 		}
 

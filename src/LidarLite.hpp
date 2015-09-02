@@ -59,9 +59,9 @@ class LidarLite
 		int status();		
 		
 		// Returns a human readable string describing the status
-		static string getStatusString(int status);
+		static string statusString(int status);
 					
-		int getHardwareVersion();	// Get the Hardware Version of the LidarLite
+		int hardwareVersion();	// Get the Hardware Version of the LidarLite
 		
 	private:
 		int fd;									// file descriptor for I2C interface
