@@ -17,9 +17,10 @@ Svr |  Desc |  LIDAR
     |       | 
  5  |   SCL |   4
  6  |   GND |   6
- 
+
 ## Install wiring pi
-- http://wiringpi.com/
+- http://wiringpi.com/ 
+ 
 ### In brief:
 - sudo apt-get -y install libi2c-dev
 - mkdir ~/src
