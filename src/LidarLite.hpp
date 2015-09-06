@@ -37,6 +37,15 @@ class LidarLite
 		static const unsigned char STATUS_SIGNAL_INVALID = 0x40;	// Signal Invalid – “1” No signal detected, “0’ signal detected.
 		static const unsigned char STATUS_EYE_SAFETY_ON = 0x80;	// Indicates that eye safety average power limit has been exceeded and power reduction is in place.
 		
+		int logLevel;		// Toggles on and off cout debug messages
+		static const int VERBOSE = 2;
+		static const int DEBUG = 3;
+		static const int INFO = 4;
+		static const int WARN = 5;
+		static const int ERROR = 6;
+		static const int ASSERT = 7;
+		static const int NONE = 8;
+		
 		// Constructor
 		LidarLite();					
 		
@@ -55,6 +64,12 @@ class LidarLite
 		// Read the signal strength of the lidarLite
 		int signalStrength();
 		
+		// Maximum noise within correlation record [Read Only]: scaled by 1.25 (typically between 0x10–0x30)
+		int maxNoise();
+		
+		// Correlation Peak value of signal correlation [Read Only]: (scaled to 0 – 0xff max peak value)
+		int correlationPeakValue();
+		
 		// Get the status of the LidarLite
 		int status();		
 		
@@ -62,23 +77,30 @@ class LidarLite
 		static string statusString(int status);
 					
 		int hardwareVersion();	// Get the Hardware Version of the LidarLite
+		int softwareVersion();	// Get the Hardware Version of the LidarLite
 		
 	private:
 		int fd;									// file descriptor for I2C interface
 		bool errorReporting;		// Not yet implemented
+		int hwVersion;					// Stores the Hardware version to avoid repeated device polling
+		int swVersion;					// Stores the Software version to avoid repeated device polling
 		
 		// readByte does the register reading heavy lifting
-		int readByte(int fd, int reg, bool monitorBusyFlag); 
-	
-		static const bool DEBUG_PRINT = false;		// Toggles on and off cout debug messages
+		int readByte(int fd, int reg, bool monitorBusyFlag); 	
+		
+		unsigned char REG_STATUS;
 		
 		// Write register constants
 		static const unsigned char REG_MEASURE = 0x00;
-		static const unsigned char REG_STATUS = 0x01;
+		static const unsigned char REG_STATUS_V20 = 0x47; 
+		static const unsigned char REG_STATUS_V21 = 0x01; 
 		static const unsigned char REG_HI_DISTANCE = 0x0f;
 		static const unsigned char REG_LO_DISTANCE = 0x10;
-		static const unsigned char REG_VERSION = 0x41;
+		static const unsigned char REG_HARDWARE_VERSION = 0x41;
+		static const unsigned char REG_SOFTWARE_VERSION = 0x4f;
 		static const unsigned char REG_SIGNAL_STRENGTH = 0x0e;
+		static const unsigned char REG_MAX_NOISE = 0x0d;
+		static const unsigned char REG_CORR_PEAK_VAL = 0x0c;
 		
 		// Write values
 		static const unsigned char VAL_MEASURE = 0x04;

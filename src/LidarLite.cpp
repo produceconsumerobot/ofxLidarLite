@@ -31,6 +31,10 @@ https://github.com/PulsedLight3D/
 LidarLite::LidarLite() {
 	fd = -1;
 	errorReporting = false;
+	logLevel = NONE;
+	REG_STATUS = REG_STATUS_V21;
+	hwVersion = 0;
+	swVersion = 0;
 }
 
 /* =============================================================================
@@ -57,18 +61,31 @@ LidarLite::LidarLite() {
     address. If you change the address, fill it in here.
 ============================================================================= */
 void LidarLite::begin(int configuration, bool fasti2c, bool showErrorReporting, char LidarLiteI2cAddress){
+	if (logLevel <= VERBOSE) cout << "LidarLite::begin" << endl;
+	
 	errorReporting = showErrorReporting;
 	
 	if (fasti2c){
 		// fast I2C not yet supported, come again soon
+		cout << "fast I2C not yet supported, come again soon" << endl;
 	}
 	
 	// initialize the LidarLite
 	fd = wiringPiI2CSetup(LidarLiteI2cAddress);
+	
+	hwVersion = readByte(fd, REG_HARDWARE_VERSION, false);
+	swVersion = readByte(fd, REG_SOFTWARE_VERSION, false);
+	
+	if (hardwareVersion() < 21) {
+		REG_STATUS = REG_STATUS_V20;
+		status();
+		usleep(100000);
+	}
 
 	if (fd > -1) {
-		configure(configuration);
-		usleep(100000);
+			configure(configuration);
+			usleep(100000);
+		//}
 	}
 	
 	return;
@@ -79,6 +96,7 @@ void LidarLite::begin(int configuration, bool fasti2c, bool showErrorReporting, 
 	Returns whether begin successfully initialized the LIDAR Lite
 	============================================================================= */
 bool LidarLite::hasBegun() {
+	if (logLevel <= VERBOSE) cout << "LidarLite::hasBegun" << endl;
 	if (fd > -1) {
 		return true;
 	}
@@ -100,28 +118,31 @@ bool LidarLite::hasBegun() {
       great for stronger singles) can be a little noisier
 ============================================================================= */
 void LidarLite::configure(int configuration){
+	if (logLevel <= VERBOSE) cout << "LidarLite::configure" << endl;
+	int writeSuccess = 0;
   switch (configuration){
     case 0: //  Default configuration
-			wiringPiI2CWriteReg8(fd, 0x00, 0x00);
+			writeSuccess = wiringPiI2CWriteReg8(fd, 0x00, 0x00);
 			usleep(1000);
     break;
     case 1: //  Set aquisition count to 1/3 default value, faster reads, slightly
             //  noisier values
-			wiringPiI2CWriteReg8(fd, 0x04,0x00);
+			writeSuccess = wiringPiI2CWriteReg8(fd, 0x04,0x00);
 			usleep(1000);
     break;
     case 2: //  Low noise, low sensitivity: Pulls decision criteria higher
             //  above the noise, allows fewer false detections, reduces
             //  sensitivity
-      wiringPiI2CWriteReg8(fd, 0x1c,0x20);
+      writeSuccess = wiringPiI2CWriteReg8(fd, 0x1c,0x20);
 			usleep(1000);
     break;
     case 3: //  High noise, high sensitivity: Pulls decision criteria into the
             //  noise, allows more false detections, increses sensitivity
-      wiringPiI2CWriteReg8(fd, 0x1c,0x60);
+      writeSuccess = wiringPiI2CWriteReg8(fd, 0x1c,0x60);
 			usleep(1000);
     break;
   }
+	if (logLevel <= INFO) cout << "writeSuccess = " << writeSuccess << endl;
 }
 
 /* =============================================================================
@@ -169,25 +190,30 @@ void LidarLite::configure(int configuration){
     with the high byte set to "1", ergo it autoincrements.
 ============================================================================= */
 int LidarLite::distance(bool stablizePreampFlag, bool takeReference){
-	int loVal, hiVal;
+	if (logLevel <= VERBOSE) cout << "LidarLite::distance" << endl;
+	int loVal, hiVal, writeSuccess = 0;
 	
   if(stablizePreampFlag){
     // Take acquisition & correlation processing with DC correction
-		wiringPiI2CWriteReg8(fd, REG_MEASURE, VAL_MEASURE);
+		writeSuccess = wiringPiI2CWriteReg8(fd, REG_MEASURE, VAL_MEASURE);
 		usleep(1000);
   }else{
     // Take acquisition & correlation processing without DC correction
-		wiringPiI2CWriteReg8(fd, REG_MEASURE, VAL_MEASURE_NO_DC_CRCT);
+		writeSuccess = wiringPiI2CWriteReg8(fd, REG_MEASURE, VAL_MEASURE_NO_DC_CRCT);
 		usleep(1000);
   }
+	
+	if (logLevel <= DEBUG) cout << "writeSuccess = " << writeSuccess << endl;
 	
 	// Get the low byte, return -1 if error occurred
 	loVal = readByte(fd, REG_LO_DISTANCE, true);
 	if (loVal == -1) return -1;
+	if (logLevel <= VERBOSE) cout << "loVal = " << loVal << endl;
 	
 	// Get the high byte, return -1 if error occurred
 	hiVal = readByte(fd, REG_HI_DISTANCE, true);
 	if (hiVal == -1) return -1;
+	if (logLevel <= VERBOSE) cout << "hiVal = " << hiVal << endl;
 	
 	return ( (hiVal << 8) + loVal);
 	//return lidar_read(fd);
@@ -233,31 +259,55 @@ int LidarLite::distance(bool stablizePreampFlag, bool takeReference){
       signalStrength = myLidarLiteInstance.signalStrength();
   =========================================================================== */
 int LidarLite::signalStrength(){
+	if (logLevel <= VERBOSE) cout << "LidarLite::signalStrength" << endl;
 	int sigStrength = readByte(fd, REG_SIGNAL_STRENGTH, false);
 	if (sigStrength == -1) return -1;
 	else return ((int)((unsigned char) sigStrength));
 }
 
 //--------------------------------------------------------------	
+int LidarLite::maxNoise(){
+	if (logLevel <= VERBOSE) cout << "LidarLite::maxNoise" << endl;
+	int maxNoise = readByte(fd, REG_MAX_NOISE, false);
+	if (maxNoise == -1) return -1;
+	else return ((int)((unsigned char) maxNoise));
+}
+
+//--------------------------------------------------------------	
+int LidarLite::correlationPeakValue(){
+	if (logLevel <= VERBOSE) cout << "LidarLite::correlationPeakValue" << endl;
+	int corrPeakVal = readByte(fd, REG_CORR_PEAK_VAL, false);
+	if (corrPeakVal == -1) return -1;
+	else return ((int)((unsigned char) corrPeakVal));
+}
+
+//--------------------------------------------------------------	
+int LidarLite::hardwareVersion() {
+	if (logLevel <= VERBOSE) cout << "LidarLite::hardwareVersion" << endl;
+	return hwVersion;
+}
+
+//--------------------------------------------------------------	
+int LidarLite::softwareVersion() {
+	if (logLevel <= VERBOSE) cout << "LidarLite::hardwareVersion" << endl;
+	return swVersion;
+}
+
+//--------------------------------------------------------------	
 int LidarLite::status() {
+	if (logLevel <= VERBOSE) cout << "LidarLite::status" << endl;
 	// return the status register result
 	return wiringPiI2CReadReg8(fd, REG_STATUS) ;
 }
 
-
 //--------------------------------------------------------------	
-int LidarLite::hardwareVersion() {
-	return readByte(fd, REG_VERSION, false);
-}
-
-//--------------------------------------------------------------	
-string LidarLite::statusString(int status) {
+string LidarLite::statusString(int statusInt) {
 	stringstream out;
 	
-	if (status == -1) {
+	if (statusInt == -1) {
 		out << "STATUS: -1 error;";
 	} else {
-		unsigned char stat = (unsigned char) status;
+		unsigned char stat = (unsigned char) statusInt;
 		
 		// Print the hex status byte
 		out << "STATUS BYTE: 0x";
@@ -277,26 +327,26 @@ string LidarLite::statusString(int status) {
 
 //--------------------------------------------------------------	
 int LidarLite::readByte(int fd, int reg, bool monitorBusyFlag) {
+	if (logLevel <= VERBOSE) cout << "LidarLite::readByte" << endl;
 	int busyFlag = 0;
   if(monitorBusyFlag){
     busyFlag = 1;
   }
 	int busyCounter = 0;
 	while(busyFlag != 0){
-		//wiringPiI2CWrite(fd, 0x01); // write to Mode/Status register
-		//int status = wiringPiI2CRead(fd); // Read the Mode/Status result
-		int status = wiringPiI2CReadReg8(fd, REG_STATUS); // Read from the Mode/Status register
-		if (DEBUG_PRINT) cout << "status = " << status << endl;
-		if (status != -1) {
-			// If bit0 of status == 1, the LIDAR Lite is busy
-			busyFlag = (((unsigned char) status ) & STATUS_BUSY);
-			if (DEBUG_PRINT) cout << "busyFlag = " << busyFlag << endl;
+		int stat = status(); // Read from the Mode/Status register
+		if (logLevel <= VERBOSE) cout << "status = " << stat << endl;
+		if (stat != -1) {
+			// If bit0 of stat == 1, the LIDAR Lite is busy
+			busyFlag = (((unsigned char) stat ) & STATUS_BUSY);
+			if (logLevel <= VERBOSE) cout << "busyFlag = " << busyFlag << endl;
 		}
 
     busyCounter++;
     if(busyCounter > 9999){
       if(errorReporting){
 				// errorReporting not yet supported, come again soon
+				cout << "errorReporting not yet supported, come again soon" << endl;
       }
 			// Soooo busy, need to bail
 			busyCounter = 0;
@@ -305,7 +355,29 @@ int LidarLite::readByte(int fd, int reg, bool monitorBusyFlag) {
     }
   }
   if(busyFlag == 0){
-		return wiringPiI2CReadReg8(fd, reg);
+		if (hardwareVersion() < 21) usleep(1000);
+		
+		int output = wiringPiI2CReadReg8(fd, reg);
+		if (hardwareVersion() < 21) {
+			// Attempt to get LidarLite V1 working with new V2 code
+			int i = 0;
+			while (true) {
+				if (output == -1) {
+					// output 
+					usleep(20000);
+					output = wiringPiI2CReadReg8(fd, reg);
+					if (i++ > 50) {
+						// Timeout
+						if (logLevel <= INFO) cout << "Timeout" << endl;
+						return -1;
+					}
+				} else {
+					break;
+				}
+			}
+		}
+		return output;
+		
   } else {
 		return -1;
 	}
