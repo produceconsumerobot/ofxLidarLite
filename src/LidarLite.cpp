@@ -26,6 +26,7 @@ https://github.com/PulsedLight3D/
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <unistd.h>
 
 //--------------------------------------------------------------
 LidarLite::LidarLite() {
@@ -79,11 +80,13 @@ void LidarLite::begin(int configuration, bool fasti2c, bool showErrorReporting, 
 	if (hardwareVersion() < 21) {
 		REG_STATUS = REG_STATUS_V20;
 		status();
+		//ofSleepMillis(100);
 		usleep(100000);
 	}
 
 	if (fd > -1) {
 			configure(configuration);
+			//ofSleepMillis(100);
 			usleep(100000);
 		//}
 	}
@@ -123,22 +126,26 @@ void LidarLite::configure(int configuration){
   switch (configuration){
     case 0: //  Default configuration
 			writeSuccess = wiringPiI2CWriteReg8(fd, 0x00, 0x00);
+			//ofSleepMillis(1);
 			usleep(1000);
     break;
     case 1: //  Set aquisition count to 1/3 default value, faster reads, slightly
             //  noisier values
 			writeSuccess = wiringPiI2CWriteReg8(fd, 0x04,0x00);
+			//ofSleepMillis(1);
 			usleep(1000);
     break;
     case 2: //  Low noise, low sensitivity: Pulls decision criteria higher
             //  above the noise, allows fewer false detections, reduces
             //  sensitivity
       writeSuccess = wiringPiI2CWriteReg8(fd, 0x1c,0x20);
+			//ofSleepMillis(1);
 			usleep(1000);
     break;
     case 3: //  High noise, high sensitivity: Pulls decision criteria into the
             //  noise, allows more false detections, increses sensitivity
       writeSuccess = wiringPiI2CWriteReg8(fd, 0x1c,0x60);
+			//ofSleepMillis(1);
 			usleep(1000);
     break;
   }
@@ -196,10 +203,12 @@ int LidarLite::distance(bool stablizePreampFlag, bool takeReference){
   if(stablizePreampFlag){
     // Take acquisition & correlation processing with DC correction
 		writeSuccess = wiringPiI2CWriteReg8(fd, REG_MEASURE, VAL_MEASURE);
+		//ofSleepMillis(1);
 		usleep(1000);
   }else{
     // Take acquisition & correlation processing without DC correction
 		writeSuccess = wiringPiI2CWriteReg8(fd, REG_MEASURE, VAL_MEASURE_NO_DC_CRCT);
+		//ofSleepMillis(1);
 		usleep(1000);
   }
 	
@@ -282,6 +291,28 @@ int LidarLite::correlationPeakValue(){
 }
 
 //--------------------------------------------------------------	
+int LidarLite::transmitPower(){
+	if (logLevel <= VERBOSE) cout << "LidarLite::transmitPower" << endl;
+	int transPow = readByte(fd, REG_TRANSMIT_POWER, false);
+	if (transPow == -1) return -1;
+	else return ((int)((unsigned char) transPow));
+}
+
+//--------------------------------------------------------------	
+int LidarLite::eyeSafetyOn(){
+	if (logLevel <= VERBOSE) cout << "LidarLite::eyeSafe" << endl;
+	int eyeSafety = -1;
+	int stat = status(); // Read from the Mode/Status register
+	if (logLevel <= VERBOSE) cout << "status = " << stat << endl;
+	if (stat != -1) {
+		// If bit8 of stat == 1, eyeSafety is on
+		eyeSafety = (((unsigned char) stat ) & STATUS_EYE_SAFETY_ON);
+		if (logLevel <= VERBOSE) cout << "eyeSafety = " << eyeSafety << endl;
+	}
+	return eyeSafety;
+}
+
+//--------------------------------------------------------------	
 int LidarLite::hardwareVersion() {
 	if (logLevel <= VERBOSE) cout << "LidarLite::hardwareVersion" << endl;
 	return hwVersion;
@@ -355,7 +386,7 @@ int LidarLite::readByte(int fd, int reg, bool monitorBusyFlag) {
     }
   }
   if(busyFlag == 0){
-		if (hardwareVersion() < 21) usleep(1000);
+		if (hardwareVersion() < 21) usleep(1000); //ofSleepMillis(1); 
 		
 		int output = wiringPiI2CReadReg8(fd, reg);
 		if (hardwareVersion() < 21) {
@@ -364,6 +395,7 @@ int LidarLite::readByte(int fd, int reg, bool monitorBusyFlag) {
 			while (true) {
 				if (output == -1) {
 					// output 
+					//ofSleepMillis(20);
 					usleep(20000);
 					output = wiringPiI2CReadReg8(fd, reg);
 					if (i++ > 50) {

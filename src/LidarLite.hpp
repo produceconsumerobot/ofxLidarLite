@@ -70,6 +70,12 @@ class LidarLite
 		// Correlation Peak value of signal correlation [Read Only]: (scaled to 0 – 0xff max peak value)
 		int correlationPeakValue();
 		
+		// Returns whether or not eye safety has been activated
+		int eyeSafetyOn();
+		
+		// Returns transmit power of LidarLite
+		int transmitPower();
+		
 		// Get the status of the LidarLite
 		int status();		
 		
@@ -101,6 +107,7 @@ class LidarLite
 		static const unsigned char REG_SIGNAL_STRENGTH = 0x0e;
 		static const unsigned char REG_MAX_NOISE = 0x0d;
 		static const unsigned char REG_CORR_PEAK_VAL = 0x0c;
+		static const unsigned char REG_TRANSMIT_POWER = 0x0c;
 		
 		// Write values
 		static const unsigned char VAL_MEASURE = 0x04;
