@@ -34,17 +34,7 @@ Svr |  Desc |  LIDAR
 - printf 'i2c_bcm2708\ni2c-dev\n' | sudo tee --append /etc/modules
  
 ## Setup OpenFrameworks
-http://forum.openframeworks.cc/t/raspberry-pi-2-setup-guide/18690
-### In brief:
-- cd ~
-- curl -O http://www.openframeworks.cc/versions/v0.8.4/of_v0.8.4_linuxarmv7l_release.tar.gz
-- tar xvf of_v0.8.4_linuxarmv7l_release.tar.gz
-- curl https://raw.githubusercontent.com/openframeworks/openFrameworks/master/libs/openFrameworksCompiled/project/linuxarmv7l/config.linuxarmv7l.rpi2.mk -o of_v0.8.4_linuxarmv7l_release/libs/openFrameworksCompiled/project/linuxarmv7l/config.linuxarmv7l.rpi2.mk
-- cd ~/of_v0.8.4_linuxarmv7l_release/scripts/linux/debian/
-- cp -f ~/scripts/install_dependencies.sh .
-- sudo ./install_dependencies.sh
-- printf 'export MAKEFLAGS=-j4 PLATFORM_VARIANT=rpi2\n' | sudo tee --append ~/.profile
-- cp ~/of_v0.8.4_linuxarmv7l_release/examples/3d/3DPrimitivesExample/ ~/of_v0.8.4_linuxarmv7l_release/apps/myApps/ -r
+http://openframeworks.cc/setup/raspberrypi/raspberry-pi-getting-started/
  
 ## Rock & Roll
 - Add ofxLidarLite folder to your OF Addons folder
