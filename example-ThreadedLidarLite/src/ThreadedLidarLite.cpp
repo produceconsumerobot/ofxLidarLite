@@ -2,12 +2,16 @@
 ThreadedLidarLite.h
 For use with OpenFrameworks Addon ofxLidarLite
 
-Created by Produce Consume Robot 2015.
-http://produceconsumerobot.com/
-
 This work is licensed under the Creative Commons 
 Attribution-ShareAlike 3.0 Unported License. 
 To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/3.0/.
+
+Leverages WiringPi by drogon
+Derived from https://github.com/PulsedLight3D/LIDARLite_v2_Arduino_Library/tree/master/LIDARLite
+	
+Requirements:
+	Install wiring pi - http://wiringpi.com/
+	Add PROJECT_LDFLAGS += -lwiringPi to the PROJECT LINKER FLAGS section of config.make
 	
 See LIDAR Lite documentation for more info
 http://kb.pulsedlight3d.com/
