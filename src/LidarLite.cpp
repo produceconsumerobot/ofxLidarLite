@@ -19,8 +19,6 @@ http://kb.pulsedlight3d.com/
 https://github.com/PulsedLight3D/
 */
 
-#pragma once
-
 #include "LidarLite.hpp"
 #include <wiringPiI2C.h>
 #include <sstream>

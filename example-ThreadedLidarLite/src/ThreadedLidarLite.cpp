@@ -18,8 +18,6 @@ http://kb.pulsedlight3d.com/
 https://github.com/PulsedLight3D/
 */
 
-#pragma once
-
 #include "ThreadedLidarLite.h"
 
 // *************************************************** 
@@ -84,8 +82,8 @@ void ThreadedLidarLite::threadedFunction() {
 			// We got a mutex lock!
 
 			// Read data from the LidarLite
-            int _distance = distance();
-            int _signalStrength = signalStrength();
+            _distance = distance();
+            _signalStrength = signalStrength();
 
 			// Set flag to indicate a new processed frame is available
 			_newOutputAvailable = true;
