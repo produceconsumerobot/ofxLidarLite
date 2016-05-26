@@ -19,7 +19,7 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
-    int success = myLidarLite.startRead();
+    int success = myLidarLite.startDistanceRead();
     if (success) {
         cout << "SUCCESS: myLidarLite.startRead();" << endl;
     }

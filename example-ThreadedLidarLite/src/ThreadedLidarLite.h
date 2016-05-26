@@ -38,7 +38,7 @@ class ThreadedLidarLite : public ofThread, public LidarLite
     void start(bool blocking = false);		// Start a thread, defaults to non-blocking to allow avoid slowing down main thread
 	void stop();							// Stop the thread
 	void threadedFunction();                // Threaded loop
-    bool startRead();                            // initiates a distance and signal strength read
+    bool startDistanceRead();               // initiates a distance and signal strength read
     bool isOutputNew();                     // Returns whether new output data is available
     bool getOutput(int & distance, int & signalStrength);
    

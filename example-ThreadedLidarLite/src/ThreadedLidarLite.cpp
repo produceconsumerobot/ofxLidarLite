@@ -82,8 +82,8 @@ void ThreadedLidarLite::threadedFunction() {
 			// We got a mutex lock!
 
 			// Read data from the LidarLite
-            int rawDist = myLidarLite.distance();
-            int signalStrength = myLidarLite.signalStrength();
+            int rawDist = distance();
+            int signalStrength = signalStrength();
 
 			// Set flag to indicate a new processed frame is available
 			_newOutputAvailable = true;
@@ -106,7 +106,7 @@ void ThreadedLidarLite::threadedFunction() {
 // Starts a read from the LidarLite.
 // Returns whether it was successful (if a mutex lock was acquired).
 // ***************************************************
-bool ThreadedLidarLite::startRead() {
+bool ThreadedLidarLite::startDistanceRead() {
 	if (lock()) {
 		// We got a mutex lock!
 
@@ -135,7 +135,7 @@ bool ThreadedLidarLite::startRead() {
 // isOutputNew() will return false after calling getOutput until
 // the process successfully processes a new output.
 // ***************************************************
-bool ThreadedLidarLite::getOutput(int & distance, int & signalStrength)) {
+bool ThreadedLidarLite::getOutput(int & distance, int & signalStrength) {
 
 	if (lock()) {
 		// We got a mutex lock!
