@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
-#include "LidarLite.hpp"
+#include "ThreadedLidarLite.h"
 
 class ofApp : public ofBaseApp{
 	public:
