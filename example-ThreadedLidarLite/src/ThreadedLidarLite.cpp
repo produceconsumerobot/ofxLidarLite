@@ -30,6 +30,8 @@ ThreadedLidarLite::ThreadedLidarLite() {
     _readStarted = false;
     inputCount = 0;					// debug counter
 	outputCount = 0;				// debug counter
+    
+    LidarLite();
 }
 // END Constructor 
 // ***************************************************
