@@ -38,4 +38,4 @@ class ThreadedLidarLite : public ofThread
     bool isOutputNew();                     // Returns whether new output data is available
     bool getOutput(int & distance, int & signalStrength);
    
-}
+};
