@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-	myLidarLite = ThreadedLidarLite();
+	//myLidarLite = ThreadedLidarLite();
 	myLidarLite.begin();
 	
 	// Exit if the lidar lite didn't initialize properly
