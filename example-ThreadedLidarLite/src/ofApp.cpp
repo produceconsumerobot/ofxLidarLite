@@ -33,11 +33,11 @@ void ofApp::draw(){
           << std::setfill( '0' ) <<ofGetFrameRate() << " Hz, ";
           		
     if (myLidarLite.isOutputNew()) {
-        int distance;
-        int signalStrength;
+        int distance = -1;
+        int signalStrength = -1;
         
         // Read the distance and signalStrength
-        myLidarLite.getOutput(& distance, & signalStrength);
+        myLidarLite.getOutput(distance, signalStrength);
         
         cout << "Distance = " << distance << " cm, ";
         
