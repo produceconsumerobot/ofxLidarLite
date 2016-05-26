@@ -3,6 +3,7 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 	//myLidarLite = ThreadedLidarLite();
+    cout << setup() << endl;
 	myLidarLite.begin();
 	
 	// Exit if the lidar lite didn't initialize properly

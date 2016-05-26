@@ -140,7 +140,7 @@ bool ThreadedLidarLite::getOutput(int & mDistance, int & mSignalStrength) {
 	if (lock()) {
 		// We got a mutex lock!
 
-		// Deep copy _output to output output
+		// Deep copy _output to output
 		mDistance = _distance;
         mSignalStrength = _signalStrength;
 
