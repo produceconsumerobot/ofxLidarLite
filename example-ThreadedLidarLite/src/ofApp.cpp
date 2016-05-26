@@ -37,7 +37,7 @@ void ofApp::draw(){
         int signalStrength;
         
         // Read the distance and signalStrength
-        myLidarLite.getOutput(int & distance, int & signalStrength);
+        myLidarLite.getOutput(& distance, & signalStrength);
         
         cout << "Distance = " << distance << " cm, ";
         
