@@ -394,9 +394,9 @@ int LidarLite::readByte(int fd, int reg, bool monitorBusyFlag) {
 				if (output == -1) {
 					// output 
 					//ofSleepMillis(20);
-					usleep(20000);
+					usleep(20000); 
 					output = wiringPiI2CReadReg8(fd, reg);
-					if (i++ > 20) {
+					if (i++ > 20) { // Originally 50
 						// Timeout
 						if (logLevel <= INFO) cout << "Timeout" << endl;
 						return -1;
