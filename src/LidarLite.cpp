@@ -358,32 +358,32 @@ string LidarLite::statusString(int statusInt) {
 int LidarLite::readByte(int fd, int reg, bool monitorBusyFlag) {
 	if (logLevel <= VERBOSE) cout << "LidarLite::readByte" << endl;
 	int busyFlag = 0;
-  if(monitorBusyFlag){
+    if(monitorBusyFlag){
     busyFlag = 1;
-  }
-	int busyCounter = 0;
-	while(busyFlag != 0){
-		int stat = status(); // Read from the Mode/Status register
-		if (logLevel <= VERBOSE) cout << "status = " << stat << endl;
-		if (stat != -1) {
-			// If bit0 of stat == 1, the LIDAR Lite is busy
-			busyFlag = (((unsigned char) stat ) & STATUS_BUSY);
-			if (logLevel <= VERBOSE) cout << "busyFlag = " << busyFlag << endl;
-		}
-
-    busyCounter++;
-    if(busyCounter > 9999){
-      if(errorReporting){
-				// errorReporting not yet supported, come again soon
-				cout << "errorReporting not yet supported, come again soon" << endl;
-      }
-			// Soooo busy, need to bail
-			busyCounter = 0;
-			cout << "> Bailout" << endl;
-      break;
     }
-  }
-  if(busyFlag == 0){
+    int busyCounter = 0;
+    while(busyFlag != 0){
+        int stat = status(); // Read from the Mode/Status register
+        if (logLevel <= VERBOSE) cout << "status = " << stat << endl;
+        if (stat != -1) {
+            // If bit0 of stat == 1, the LIDAR Lite is busy
+            busyFlag = (((unsigned char) stat ) & STATUS_BUSY);
+            if (logLevel <= VERBOSE) cout << "busyFlag = " << busyFlag << endl;
+        }
+
+        busyCounter++;
+        if(busyCounter > 9999){
+          if(errorReporting){
+                    // errorReporting not yet supported, come again soon
+                    cout << "errorReporting not yet supported, come again soon" << endl;
+          }
+                // Soooo busy, need to bail
+                busyCounter = 0;
+                cout << "> Bailout" << endl;
+          break;
+        }
+    }
+    if(busyFlag == 0){
 		if (hardwareVersion() < 21) usleep(1000); //ofSleepMillis(1); 
 		
 		int output = wiringPiI2CReadReg8(fd, reg);
